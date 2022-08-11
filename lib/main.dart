@@ -14,9 +14,18 @@ class MyApp extends StatelessWidget {
   /// Constructor for [MyApp].
   const MyApp({Key? key}) : super(key: key);
 
+  final Color borderColor = const Color.fromRGBO(2, 110, 24, 1);
+  final Color errorColor = const Color.fromRGBO(211, 109, 109, 1);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+          primary: borderColor,
+          background: Colors.white,
+          error: errorColor
+        )
+      ),
       home: AuthScreen(
         authRepository: AuthRepository(StudyJamClient()),
       ),
