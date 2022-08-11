@@ -1,8 +1,11 @@
+import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:surf_practice_chat_flutter/features/chat/models/chat_message_dto.dart';
+import 'package:surf_practice_chat_flutter/features/chat/models/chat_message_location_dto.dart';
 import 'package:surf_practice_chat_flutter/features/chat/models/chat_user_dto.dart';
 import 'package:surf_practice_chat_flutter/features/chat/models/chat_user_local_dto.dart';
 import 'package:surf_practice_chat_flutter/features/chat/repository/chat_repository.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 /// Main screen of chat app, containing messages.
 class ChatScreen extends StatefulWidget {
@@ -164,11 +167,15 @@ class _ChatMessage extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
+  void launchMapsApp(double? longitude, double? latitude) async {
+    if (await canLaunchUrlString('https://yandex.ru/maps/?ll=$longitude%2C$latitude&z=2')) {
+      await launchUrlString('https://yandex.ru/maps/?ll=$longitude%2C$latitude&z=2');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Material(
-      color: chatData.chatUserDto is ChatUserLocalDto ? colorScheme.primary.withOpacity(.1) : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 18,
@@ -183,12 +190,43 @@ class _ChatMessage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    chatData.chatUserDto.name ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Text(
+                        chatData.chatUserDto.name ?? '',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      if (chatData is ChatMessageGeolocationDto)
+                        IconButton(
+                          onPressed: () => launchMapsApp(chatData.location?.longitude, chatData.location?.latitude),
+                          icon: const Icon(
+                            Icons.location_on,
+                            color: Colors.blue,
+                          ),
+                          splashRadius: 15,
+                        ),
+                    ],
                   ),
+                  if (chatData is ChatMessageGeolocationDto)
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 160,
+                          child: Text(
+                            "φ: ${chatData.location?.latitude} "
+                            "\nθ: ${chatData.location?.longitude}",
+                          ),
+                        )
+                      ],
+                    ),
                   const SizedBox(height: 4),
-                  Text(chatData.message ?? ''),
+                  Bubble(
+                    color: chatData.chatUserDto is ChatUserLocalDto
+                        ? Colors.lightBlueAccent.withOpacity(.2)
+                        : Colors.lightGreen.withOpacity(.3),
+                    nip: BubbleNip.leftTop,
+                    child: Text(chatData.message ?? ''),
+                  ),
                 ],
               ),
             ),
