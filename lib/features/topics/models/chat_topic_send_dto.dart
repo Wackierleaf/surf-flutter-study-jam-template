@@ -19,8 +19,8 @@ class ChatTopicSendDto {
 
   /// Constructor for [ChatTopicDto].
   const ChatTopicSendDto({
-    this.name,
-    this.description,
+    required this.name,
+    required this.description,
   });
 
   /// Transforms from [ChatTopicSendDto] to API model [SjChatSendsDto].

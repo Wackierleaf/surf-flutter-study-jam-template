@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:surf_practice_chat_flutter/features/topics/models/chat_topic_send_dto.dart';
 import 'package:surf_practice_chat_flutter/features/topics/repository/chart_topics_repository.dart';
 
 import '../models/chat_topic_dto.dart';
@@ -17,16 +19,105 @@ class TopicsScreen extends StatefulWidget {
 
 class _TopicsScreenState extends State<TopicsScreen> {
   Future<Iterable<ChatTopicDto>> _chatTopics = Future(() => <ChatTopicDto>[]);
+  late final TextEditingController _name;
+  late final TextEditingController _description;
+  DateTime start = DateTime(2022);
 
   @override
   void initState() {
-    super.initState();
-    DateTime start = DateTime(2022);
+    _name = TextEditingController();
+    _description = TextEditingController();
     final topics =
         widget.chatTopicsRepository.getTopics(topicsStartDate: start);
     setState(() {
       _chatTopics = topics;
     });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _description.dispose();
+    super.dispose();
+  }
+
+  void createNewTopic() async {
+    ChatTopicSendDto newTopic =
+        ChatTopicSendDto(name: _name.text, description: _description.text);
+    await widget.chatTopicsRepository.createTopic(newTopic);
+    final topics =
+        widget.chatTopicsRepository.getTopics(topicsStartDate: start);
+    setState(() {
+      _chatTopics = topics;
+    });
+  }
+
+  void openTopicCreationDia() async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Text('Создание чата'),
+              content: (Wrap(
+                spacing: 2.1,
+                children: [
+                  TextField(
+                    controller: _name,
+                    maxLength: 100,
+                    enableSuggestions: false,
+                    decoration: InputDecoration(
+                      labelText: 'Название',
+                      floatingLabelBehavior: FloatingLabelBehavior.auto,
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              width: 3,
+                              color: Theme.of(context).colorScheme.primary),
+                          borderRadius: BorderRadius.circular(8)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            width: 3,
+                            color: Theme.of(context).colorScheme.primary),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _description,
+                    maxLength: 200,
+                    maxLines: 4,
+                    enableSuggestions: false,
+                    decoration: InputDecoration(
+                      labelText: 'Описание',
+                      floatingLabelBehavior: FloatingLabelBehavior.auto,
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              width: 3,
+                              color: Theme.of(context).colorScheme.primary),
+                          borderRadius: BorderRadius.circular(8)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            width: 3,
+                            color: Theme.of(context).colorScheme.primary),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  )
+                ],
+              )),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context, 'Close'),
+                    child: const Text('Отмена')),
+                ElevatedButton(
+                    onPressed: () {
+                      createNewTopic();
+                      Navigator.pop(context, 'Created');
+                    },
+                    child: const Text('Создать'))
+              ],
+            ));
   }
 
   @override
@@ -35,7 +126,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
     return Scaffold(
       backgroundColor: colorScheme.background,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(48),
+        preferredSize: Size.fromHeight(48),
         child: _ChatTopicsAppBar(),
       ),
       body: Column(
@@ -46,6 +137,11 @@ class _TopicsScreenState extends State<TopicsScreen> {
             chatTopics: _chatTopics,
           ))
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        onPressed: () => openTopicCreationDia(),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -70,11 +166,11 @@ class _ChatTopicsBody extends StatelessWidget {
               } else {
                 return ListView.separated(
                     separatorBuilder: (context, index) => const Divider(
-                      color: Colors.grey,
-                      indent: 10,
-                      endIndent: 10,
-                      thickness: 0.8,
-                    ),
+                          color: Colors.grey,
+                          indent: 10,
+                          endIndent: 10,
+                          thickness: 0.8,
+                        ),
                     itemCount: snapshot.data.length,
                     itemBuilder: (_, index) =>
                         _ChatTopic(topicData: snapshot.data.elementAt(index)));
@@ -119,12 +215,13 @@ class _ChatTopic extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    topicData.name as String,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
                   if (topicData.description != null)
-                    Text(topicData.description as String)
+                    Text(
+                      topicData.name.toString(),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  if (topicData.description != null)
+                    Text(topicData.description.toString())
                 ],
               ),
             )
@@ -150,9 +247,10 @@ class _TopicAvatar extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     String getInitials() {
-      if (topicData.name != null) {
-        var splitted = topicData.name!.split(' ');
-        return splitted.last.isNotEmpty
+      final name = topicData.name;
+      if (name != null && name.isNotEmpty) {
+        List<String> splitted = topicData.name!.split(' ');
+        return splitted.isNotEmpty
             ? '${splitted.first[0]}${splitted.last[0]}'
             : splitted.first[0];
       }
