@@ -69,7 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _onSendPressed(String msg) async {
-    final messages = await widget.chatRepository.sendMessage(msg);
+    final messages = await widget.chatRepository.sendMessage(msg, widget.chatId);
     setState(() {
       _currentMessages = messages;
     });
