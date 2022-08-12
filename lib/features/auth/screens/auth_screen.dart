@@ -88,7 +88,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void saveToken(TokenDto token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(tokenKey, token.toString());
+    await prefs.setString(tokenKey, token.token);
   }
 
   @override
