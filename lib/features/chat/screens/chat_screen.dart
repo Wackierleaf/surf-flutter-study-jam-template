@@ -50,7 +50,10 @@ class _ChatScreenState extends State<ChatScreen> {
               messages: _currentMessages,
             ),
           ),
-          _ChatTextField(onSendPressed: _onSendPressed, onSendGeoMsg: _onSendGeoMsg,),
+          _ChatTextField(
+            onSendPressed: _onSendPressed,
+            onSendGeoMsg: _onSendGeoMsg,
+          ),
         ],
       ),
     );
@@ -71,7 +74,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _onSendGeoMsg(ChatGeolocationDto location, String msg) async {
-    final messages = await widget.chatRepository.sendGeolocationMessage(location: location, message: msg);
+    final messages = await widget.chatRepository
+        .sendGeolocationMessage(location: location, message: msg);
     setState(() {
       _currentMessages = messages;
     });
@@ -140,9 +144,11 @@ class _ChatTextField extends StatelessWidget {
 
     void setLocationIntoChatTextField() async {
       Position position = await _determinePosition();
-      _textEditingController.text = 'Сообщение с геолокацией: (${position.longitude}, ${position.latitude})';
-      ChatGeolocationDto location = ChatGeolocationDto(latitude: position.latitude, longitude: position.longitude);
-      onSendGeoMsg(location,_textEditingController.text);
+      _textEditingController.text =
+          'Сообщение с геолокацией: (${position.longitude}, ${position.latitude})';
+      ChatGeolocationDto location = ChatGeolocationDto(
+          latitude: position.latitude, longitude: position.longitude);
+      onSendGeoMsg(location, _textEditingController.text);
     }
 
     void showAttachmentsDialog() async {
@@ -154,7 +160,9 @@ class _ChatTextField extends StatelessWidget {
                   verticalDirection: VerticalDirection.down,
                   children: [
                     TextButton.icon(
-                      onPressed: () {Navigator.pop(context, 'Picture');},
+                      onPressed: () {
+                        Navigator.pop(context, 'Picture');
+                      },
                       icon: const Icon(
                         Icons.image,
                         color: Colors.grey,
@@ -270,7 +278,9 @@ class _ChatMessage extends StatelessWidget {
           vertical: 18,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: chatData.chatUserDto is ChatUserLocalDto
+              ? TextDirection.rtl
+              : TextDirection.ltr,
           children: [
             _ChatAvatar(userData: chatData.chatUserDto),
             const SizedBox(width: 16),
@@ -279,6 +289,9 @@ class _ChatMessage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
+                    textDirection: chatData.chatUserDto is ChatUserLocalDto
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
                     children: [
                       Text(
                         chatData.chatUserDto.name ?? '',
@@ -299,9 +312,11 @@ class _ChatMessage extends StatelessWidget {
                   ),
                   if (chatData is ChatMessageGeolocationDto)
                     Row(
+                      textDirection: chatData.chatUserDto is ChatUserLocalDto
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                       children: [
                         SizedBox(
-                          width: 160,
                           child: Text(
                             "φ: ${chatData.location?.latitude} "
                             "\nθ: ${chatData.location?.longitude}",
@@ -314,7 +329,7 @@ class _ChatMessage extends StatelessWidget {
                     color: chatData.chatUserDto is ChatUserLocalDto
                         ? Colors.lightBlueAccent.withOpacity(.2)
                         : Colors.lightGreen.withOpacity(.3),
-                    nip: BubbleNip.leftTop,
+                    nip: chatData.chatUserDto is ChatUserLocalDto ? BubbleNip.rightTop : BubbleNip.leftTop,
                     child: Text(chatData.message ?? ''),
                   ),
                 ],
