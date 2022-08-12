@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_flushbar/flutter_flushbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:surf_practice_chat_flutter/features/auth/exceptions/auth_exception.dart';
 import 'package:surf_practice_chat_flutter/features/auth/models/token_dto.dart';
 import 'package:surf_practice_chat_flutter/features/auth/repository/auth_repository.dart';
-import 'package:surf_practice_chat_flutter/features/chat/repository/chat_repository.dart';
-import 'package:surf_practice_chat_flutter/features/chat/screens/chat_screen.dart';
+import 'package:surf_practice_chat_flutter/features/topics/repository/chart_topics_repository.dart';
+import 'package:surf_practice_chat_flutter/features/topics/screens/topics_screen.dart';
 import 'package:surf_study_jam/surf_study_jam.dart';
-import 'package:flutter_flushbar/flutter_flushbar.dart';
-import 'package:surf_practice_chat_flutter/features/auth/exceptions/auth_exception.dart';
 
 /// Screen for authorization process.
 ///
@@ -71,7 +71,7 @@ class _AuthScreenState extends State<AuthScreen> {
         TokenDto token = await widget.authRepository.signIn(login: login, password: password);
         saveToken(token);
         if (!mounted) return;
-        _pushToChat(context, token);
+        _pushToTopics(context, token);
         setState(() {
           isLoading = false;
         });
@@ -159,13 +159,13 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  void _pushToChat(BuildContext context, TokenDto token) {
-    Navigator.push<ChatScreen>(
+  void _pushToTopics(BuildContext context, TokenDto token) {
+    Navigator.push<TopicsScreen>(
       context,
       MaterialPageRoute(
         builder: (_) {
-          return ChatScreen(
-            chatRepository: ChatRepository(
+          return TopicsScreen(
+            chatTopicsRepository: ChatTopicsRepository(
               StudyJamClient().getAuthorizedClient(token.token),
             ),
           );
