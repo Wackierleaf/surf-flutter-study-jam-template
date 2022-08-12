@@ -13,10 +13,12 @@ import 'package:url_launcher/url_launcher_string.dart';
 class ChatScreen extends StatefulWidget {
   /// Repository for chat functionality.
   final IChatRepository chatRepository;
+  final int chatId;
 
   /// Constructor for [ChatScreen].
   const ChatScreen({
     required this.chatRepository,
+    required this.chatId,
     Key? key,
   }) : super(key: key);
 
@@ -60,7 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _onUpdatePressed() async {
-    final messages = await widget.chatRepository.getMessages();
+    final messages = await widget.chatRepository.getMessagesByChatId(widget.chatId);
     setState(() {
       _currentMessages = messages;
     });

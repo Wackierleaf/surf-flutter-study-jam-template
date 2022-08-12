@@ -1,8 +1,13 @@
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:surf_practice_chat_flutter/features/topics/models/chat_topic_send_dto.dart';
 import 'package:surf_practice_chat_flutter/features/topics/repository/chart_topics_repository.dart';
+import 'package:surf_study_jam/surf_study_jam.dart';
 
+import '../../auth/models/token_dto.dart';
+import '../../chat/repository/chat_repository.dart';
+import '../../chat/screens/chat_screen.dart';
 import '../models/chat_topic_dto.dart';
 
 /// Screen with different chat topics to go to.
@@ -125,7 +130,7 @@ class _TopicsScreenState extends State<TopicsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: colorScheme.background,
-      appBar: PreferredSize(
+      appBar: const PreferredSize(
         preferredSize: Size.fromHeight(48),
         child: _ChatTopicsAppBar(),
       ),
@@ -173,11 +178,40 @@ class _ChatTopicsBody extends StatelessWidget {
                         ),
                     itemCount: snapshot.data.length,
                     itemBuilder: (_, index) =>
-                        _ChatTopic(topicData: snapshot.data.elementAt(index)));
+                    GestureDetector(
+                      onTap: () => _pushToChat(context, snapshot.data.elementAt(index).id),
+                      child: _ChatTopic(topicData: snapshot.data.elementAt(index)),
+                    )
+                );
               }
           }
         });
   }
+
+  void _pushToChat(BuildContext context, int chatId) async  {
+    final prefs = await SharedPreferences.getInstance();
+    Object? token = prefs.get('USR_TOKEN');
+    Navigator.push<ChatScreen>(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return ChatScreen(
+            chatRepository: ChatRepository(
+              StudyJamClient().getAuthorizedClient(token.toString()),
+            ),
+            chatId: chatId,
+          );
+        },
+      ),
+    );
+  }
+}
+
+Future<String> getToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  Object? token = prefs.get('USR_TOKEN');
+  print(token);
+  return token.toString();
 }
 
 class _ChatTopicsAppBar extends StatelessWidget {

@@ -23,6 +23,8 @@ abstract class IChatRepository {
   /// Throws an [Exception] when some error appears.
   Future<Iterable<ChatMessageDto>> getMessages();
 
+  Future<Iterable<ChatMessageDto>> getMessagesByChatId(int chatId);
+
   /// Sends the message by with [message] content.
   ///
   /// Returns actual messages [ChatMessageDto] from a source (given your sent
@@ -73,6 +75,12 @@ class ChatRepository implements IChatRepository {
   }
 
   @override
+  Future<Iterable<ChatMessageDto>> getMessagesByChatId(int chatId) async {
+    final messages = await _fetchAllMessages(chatId);
+    return messages;
+  }
+
+  @override
   Future<Iterable<ChatMessageDto>> sendMessage(String message) async {
     if (message.length > IChatRepository.maxMessageLength) {
       throw InvalidMessageException('Message "$message" is too large.');
@@ -114,7 +122,7 @@ class ChatRepository implements IChatRepository {
         : ChatUserDto.fromSJClient(user);
   }
 
-  Future<Iterable<ChatMessageDto>> _fetchAllMessages() async {
+  Future<Iterable<ChatMessageDto>> _fetchAllMessages([int chatId = 0]) async {
     final messages = <SjMessageDto>[];
 
     var isLimitBroken = false;
@@ -125,7 +133,11 @@ class ChatRepository implements IChatRepository {
     // API-request limitations, we can't load everything at one request, so
     // we're doing it in cycle.
     while (!isLimitBroken) {
-      final batch = await _studyJamClient.getMessages(lastMessageId: lastMessageId, limit: 10000);
+      final batch = chatId == 0
+          ? await _studyJamClient.getMessages(
+              lastMessageId: lastMessageId, limit: 10000)
+          : await _studyJamClient.getMessages(chatId: chatId, limit: 10000);
+
       messages.addAll(batch);
       lastMessageId = batch.last.chatId;
       if (batch.length < 10000) {
@@ -138,7 +150,8 @@ class ChatRepository implements IChatRepository {
     for (final message in messages) {
       messagesWithUsers[message.id] = message.userId;
     }
-    final users = await _studyJamClient.getUsers(messagesWithUsers.values.toSet().toList());
+    final users = await _studyJamClient
+        .getUsers(messagesWithUsers.values.toSet().toList());
     final localUser = await _studyJamClient.getUser();
 
     return messages
@@ -146,14 +159,18 @@ class ChatRepository implements IChatRepository {
           (sjMessageDto) => sjMessageDto.geopoint == null
               ? ChatMessageDto.fromSJClient(
                   sjMessageDto: sjMessageDto,
-                  sjUserDto: users.firstWhere((userDto) => userDto.id == sjMessageDto.userId),
-                  isUserLocal:
-                      users.firstWhere((userDto) => userDto.id == sjMessageDto.userId).id ==
-                          localUser?.id,
+                  sjUserDto: users.firstWhere(
+                      (userDto) => userDto.id == sjMessageDto.userId),
+                  isUserLocal: users
+                          .firstWhere(
+                              (userDto) => userDto.id == sjMessageDto.userId)
+                          .id ==
+                      localUser?.id,
                 )
               : ChatMessageGeolocationDto.fromSJClient(
                   sjMessageDto: sjMessageDto,
-                  sjUserDto: users.firstWhere((userDto) => userDto.id == sjMessageDto.userId),
+                  sjUserDto: users.firstWhere(
+                      (userDto) => userDto.id == sjMessageDto.userId),
                 ),
         )
         .toList();
