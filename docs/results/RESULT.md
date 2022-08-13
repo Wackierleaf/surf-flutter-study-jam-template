@@ -18,9 +18,17 @@ Android(pixel 5 emulator)
 - Реализован специальный стиль отображения для сообщений вошедшего пользователя(при отправке сообщения с геолокацией не работает, так как не успел разобраться, как передать имя пользователя вместе с геоданными).
 
 # Ссылки на демонстрацию работы/скриншоты
-![attachments_modal](https://user-images.githubusercontent.com/63415986/184500120-8bac6b67-96ac-4692-9190-3a71d5da83c3.png)
-![chat_screen](https://user-images.githubusercontent.com/63415986/184500123-b314224b-75ce-42f7-8147-f3622b3900bc.png)
-![login_screen](https://user-images.githubusercontent.com/63415986/184500124-c6f6c77a-c370-49f0-9ea6-7fa38aff2414.png)
-![maps_app](https://user-images.githubusercontent.com/63415986/184500126-916f7a89-a82e-49cf-b499-c5e05ca24690.png)
-![topic_creation_modal](https://user-images.githubusercontent.com/63415986/184500127-54d68030-3e22-407a-b27b-8e209a464efa.png)
-![topics_screen](https://user-images.githubusercontent.com/63415986/184500128-8c04777e-218f-4c15-b5b8-8d135df977ea.png)
+<div>
+  <img alt="Экран входа" src="https://github.com/Wackierleaf/surf-flutter-study-jam-template/blob/day-1/docs/assets/result_pictures/login_screen.png"     width="280" height="607">
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <img alt="Экран топиков" src="https://github.com/Wackierleaf/surf-flutter-study-jam-template/blob/day-1/docs/assets/result_pictures/topics_screen.png"     width="280" height="607">
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <img alt="Экран чата" src="https://github.com/Wackierleaf/surf-flutter-study-jam-template/blob/day-1/docs/assets/result_pictures/chat_screen.png"     width="280" height="607">
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <hr>
+  <img alt="Модальное окно вложений" src="https://github.com/Wackierleaf/surf-flutter-study-jam-template/blob/day-1/docs/assets/result_pictures/attachments_modal.png"     width="280" height="607">
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <img alt="Открытое приложение карт" src="https://github.com/Wackierleaf/surf-flutter-study-jam-template/blob/day-1/docs/assets/result_pictures/maps_app.png"     width="280" height="607">
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <img alt="Модальное окно создания топиков" src="https://github.com/Wackierleaf/surf-flutter-study-jam-template/blob/day-1/docs/assets/result_pictures/topic_creation_modal.png"     width="280" height="607">
+</div>
